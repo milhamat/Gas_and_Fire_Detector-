@@ -1,0 +1,85 @@
+#include <OneWire.h>
+#include <DallasTemperature.h>
+#define ONE_WIRE_BUS A2
+OneWire oneWire(ONE_WIRE_BUS);
+DallasTemperature sensorSuhu(&oneWire);
+float suhuSekarang;
+float ambilSuhu()
+{
+  sensorSuhu.requestTemperatures();
+  float suhu = sensorSuhu.getTempCByIndex(0);
+  return suhu;
+  }
+float temp;
+//int tempPin = A1;
+int gasA0 = A5;
+int LED1 = 2;
+int LED2 = 3;
+int buzz = 10;
+int FAN = 4;
+//int A = 20;
+//int B = 30;
+int batasGas = 200;
+int batasGas2 = 550;
+int batasTemp = 60;
+int batasTemp2 = 100;
+
+int stat;
+
+void setup() {
+  Serial.begin(9600);
+  //Ro = MQCalibration(gasA0);
+  pinMode (LED1, OUTPUT);
+  pinMode (LED2, OUTPUT);
+  pinMode (buzz, OUTPUT);
+  pinMode (FAN, OUTPUT);
+  pinMode (gasA0, INPUT);
+  //pinMode (tempPin, INPUT);
+  //dht.begin();
+}
+
+void loop() {
+  
+    int t = ambilSuhu();
+    int ukurGas = analogRead(gasA0);
+     
+   if (t > batasTemp){
+    digitalWrite(LED1, HIGH);
+    tone(buzz, 1000, 200);
+    }  
+
+   if (t< batasTemp){ 
+    digitalWrite(LED1, LOW);
+    noTone(buzz);
+    }
+
+  if (ukurGas > batasGas){
+    digitalWrite(LED2, HIGH); //LED2
+    digitalWrite(FAN, HIGH);
+    }
+  
+  if (ukurGas < batasGas){
+    digitalWrite(LED2, LOW); //LED2
+    digitalWrite(FAN, LOW);
+    }
+  
+  if ((t > batasTemp) && (ukurGas > batasGas)){
+    if ((t > batasTemp2) && (ukurGas > batasGas2)){
+     stat = 2 ; }
+    else 
+    {stat = 3 ;}
+  }
+  else {stat = 1 ; 
+  } 
+  
+     //Serial.print("Hasil!");
+      Serial.print("!");
+      Serial.print (t);
+      Serial.print("!");
+      Serial.print(ukurGas); //println
+      Serial.print("!");
+      Serial.print(stat);
+      Serial.print("\n");
+      delay(500);
+
+  }
